@@ -1,0 +1,17 @@
+
+We generate ECC private key using prime256v1 curve:
+openssl ecparam -name prime256v1 -genkey -out ecc_private.pem
+
+Then we extract the public key using the private ECC key with command:
+openssl ec -in ecc_private.pem -pubout -out ecc_public.pem
+
+Now I created an ecc.txt document with specific content - "Elliptic Curves are different."
+
+We can then sigh it with our created ECC private key using openssl command:
+openssl dgst -sha256 -sign ecc_private.pem -out ecc.sig ecc.txt
+
+Then we verify that the signature is valid using our public key:
+openssl dgst -sha256 -verify ecc_public.pem -signature ecc.sig ecc.txt
+
+And see the message "Verified OK" signaling that the verification was successful.
+
