@@ -1,0 +1,11 @@
+
+
+Diffie-Hellman is most widely used to establish a secure communication over an insecure channel. The two communicating parties establish a shared secret that is used to verify legitimacy of the messages.
+During a TLS handshake, the server and the client exchange DH parameters which they use to seperately derive a shared encryption key used to secure the communication session. 
+This way even if the data in transit is captured, it cannot be decrypted because the key was not transmitted, but rather derived. 
+This ensures perfect forward secrecy, which is ideal for secure messaging applications like Signal and WhatsApp. 
+Every message can have a new DH parameters exchange, that way even if a key is compromised the hacker cannot decrypt past messages.
+Diffie-Hellman is important because two parties communicating over internet can establish a secure channel using only each others public keys.
+Even if some malicious actor were to intercept the traffic and acquire public keys, they will be unable to compute the shared secret without access to private keys.
+It protects against man in the middle and eavesdropping attacks. 
+If new DH keys are generated on every session then this guarantees perfect forward secrecy as even if the attackers acquire the private key, they still will be unable to decrypt old messages.

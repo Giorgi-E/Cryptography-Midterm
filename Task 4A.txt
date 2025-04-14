@@ -1,0 +1,96 @@
+
+I will use CLI for this task.
+
+First we generate DH parameters that will be shared between Bob and Alice:
+openssl dhparam -out dhparams.pem 2048
+
+Then we generate private keys for Bob and Alice:
+openssl genpkey -paramfile dhparams.pem -out alice_private.pem
+openssl genpkey -paramfile dhparams.pem -out bob_private.pem
+
+The files have been generated in the directory.
+Nex we extract the public keys:
+openssl pkey -in alice_private.pem -pubout -out alice_public.pem
+openssl pkey -in bob_private.pem -pubout -out bob_public.pem
+
+To show these keys we can use cat command:
+$ cat alice_public.pem
+-----BEGIN PUBLIC KEY-----
+MIICJDCCARcGCSqGSIb3DQEDATCCAQgCggEBALaz2zE34XbZPEsR8kck4N5eTxPx
+GIIeMiDxj0YiSLIHbXlDDQLvDdgets167wLzKy9HHAZZJ1cazellNdEah0IZmVv+
+U8lPJdXe99PZsTAUhR6sHb623CEERs94psr5dugyBgSMArgOSceTObi6MtyDwVXB
+CcyUPDuSOJFI2XTrhpZ5QPgHvbpeN1jrKq+DPk+o+R7cwrfXAnQKJ+WlpfywpDOT
+ayujHhczDLeu0zOW6rUo/mQv+CtzcVqrlXz+emZMxfysRWxdGUvxEd3xnwL+0Z3G
+Rmd0GwTS5uBjvXm+3/GpbzuYdZtcd9GtRuJABp0JChLrw7d13+1hzkssw4cCAQID
+ggEFAAKCAQBHztb/bFYeym/hJY0IrGdSQeG5IWj+KShZWdTFjQoDc1DKx6lzE4Zj
+BjTvWbZ9+2lk00Xbzj6cmJFfulKZn76na2p+SQPKe9odSKUg/97KHpBVuieBoJpT
+QpqMnET3xV87CdPA7wOVnNeN2RCc7pv0XCmLkXPxQit6XilN/++xFxcSdm6wHrU3
+n9B1wegDCSNgN1lGoa5vMewEJHSpbpjSYhY8+J9nlD6JhYneoWWSoDkBeUHSaN2Y
+K1KN+Rw+Pq8xTt7dA+8wNaKpkyhrUc0m4C4YrXSXuzaXjhERYlNgIkAV4zK9T+aw
+Llt+eveGr8c1vsEkyP6YY5lJn3d+1YBv
+-----END PUBLIC KEY-----
+
+$ cat bob_public.pem
+-----BEGIN PUBLIC KEY-----
+MIICJDCCARcGCSqGSIb3DQEDATCCAQgCggEBALaz2zE34XbZPEsR8kck4N5eTxPx
+GIIeMiDxj0YiSLIHbXlDDQLvDdgets167wLzKy9HHAZZJ1cazellNdEah0IZmVv+
+U8lPJdXe99PZsTAUhR6sHb623CEERs94psr5dugyBgSMArgOSceTObi6MtyDwVXB
+CcyUPDuSOJFI2XTrhpZ5QPgHvbpeN1jrKq+DPk+o+R7cwrfXAnQKJ+WlpfywpDOT
+ayujHhczDLeu0zOW6rUo/mQv+CtzcVqrlXz+emZMxfysRWxdGUvxEd3xnwL+0Z3G
+Rmd0GwTS5uBjvXm+3/GpbzuYdZtcd9GtRuJABp0JChLrw7d13+1hzkssw4cCAQID
+ggEFAAKCAQAbmipPyWV9uTJ0A0crHWyQPDfyCXC/FQhmKhElZ76b0FWkgAcyxrDw
+ycTe6W7ABPEGr3OjX0IjZqSt9cqiXie2Kb816KtH9pW3dzrpJOrOSYqN+UqCtpe1
+RE/0n5i4SmbcMVfq6/eFZQFLQ6JreYZNfPVchHa2l5BJK/EHy1RdI5oYmlZ1KZ7l
+wi8TZp53EWeVdKoeTxEv/qrZqxkh7M1WAe2DUS2GJOULU/2Q1UF0Kt3SXHHnSfBh
+YDLMbB034b4rI+sOTn+q5JDX/GIrn8x4qMYwLAbFWneRML9Pm6Keois7/bEjuo9n
+YBRilX7Af0PYP2Adx01Dg7ESvnPcPcpv
+-----END PUBLIC KEY-----
+
+Deriving the shared secret key with CLI was a bit tricky but I managed to do it using the openssl pkeyutl command:
+For Bob:
+openssl pkeyutl -derive -inkey bob_private.pem -peerkey alice_public.pem -out bob_secret.bin
+
+For Alice:
+openssl pkeyutl -derive -inkey alice_private.pem -peerkey bob_public.pem -out alice_secret.bin
+
+To compare can use xxd command to see the derived secret in readable format.
+For Alice we get:
+$ xxd alice_secret.bin
+00000000: 51ae 7bee 2e2c 8324 9089 b702 d025 abfa  Q.{..,.$.....%..
+00000010: 9d00 630e 2c36 69b7 13c6 c998 6dca 3237  ..c.,6i.....m.27
+00000020: dcd3 aaad 49e8 daaa 31ac fcc7 3fa2 781e  ....I...1...?.x.
+00000030: 383c f252 96ab 753f 1b21 4c8d 7213 0805  8<.R..u?.!L.r...
+00000040: ba85 bc21 736a da63 3673 f146 6665 4c64  ...!sj.c6s.FfeLd
+00000050: 907b 97c8 868c d249 c054 0335 6fec 9667  .{.....I.T.5o..g
+00000060: 1530 93b0 bf48 9852 4623 bf9a 8003 6fd6  .0...H.RF#....o.
+00000070: e377 8c56 f9fb 104e c2fa 1b03 e38b 8b39  .w.V...N.......9
+00000080: 63e6 abe9 af75 dec1 f5d4 ffc8 dcfc 2add  c....u........*.
+00000090: e570 33f9 c1fe 2fc8 bc3f e176 85a3 47b5  .p3.../..?.v..G.
+000000a0: 7d71 3d12 7eab 2309 2784 16fe 06d5 42ce  }q=.~.#.'.....B.
+000000b0: a03a 1a62 e352 1a5d c476 109b 18bc d453  .:.b.R.].v.....S
+000000c0: c1c9 0a7a 4a27 8101 d06c 8494 11b7 3366  ...zJ'...l....3f
+000000d0: 921c f162 881b 92de 93d2 6d7b 9d58 ba93  ...b......m{.X..
+000000e0: 31fd 110d 6162 4287 8662 1a40 a29f e38e  1...abB..b.@....
+000000f0: e592 a6ac 3c2c 64c8 ed00 6493 caf1 e32c  ....<,d...d....,
+
+For Bob we have:
+$ xxd bob_secret.bin
+00000000: 51ae 7bee 2e2c 8324 9089 b702 d025 abfa  Q.{..,.$.....%..
+00000010: 9d00 630e 2c36 69b7 13c6 c998 6dca 3237  ..c.,6i.....m.27
+00000020: dcd3 aaad 49e8 daaa 31ac fcc7 3fa2 781e  ....I...1...?.x.
+00000030: 383c f252 96ab 753f 1b21 4c8d 7213 0805  8<.R..u?.!L.r...
+00000040: ba85 bc21 736a da63 3673 f146 6665 4c64  ...!sj.c6s.FfeLd
+00000050: 907b 97c8 868c d249 c054 0335 6fec 9667  .{.....I.T.5o..g
+00000060: 1530 93b0 bf48 9852 4623 bf9a 8003 6fd6  .0...H.RF#....o.
+00000070: e377 8c56 f9fb 104e c2fa 1b03 e38b 8b39  .w.V...N.......9
+00000080: 63e6 abe9 af75 dec1 f5d4 ffc8 dcfc 2add  c....u........*.
+00000090: e570 33f9 c1fe 2fc8 bc3f e176 85a3 47b5  .p3.../..?.v..G.
+000000a0: 7d71 3d12 7eab 2309 2784 16fe 06d5 42ce  }q=.~.#.'.....B.
+000000b0: a03a 1a62 e352 1a5d c476 109b 18bc d453  .:.b.R.].v.....S
+000000c0: c1c9 0a7a 4a27 8101 d06c 8494 11b7 3366  ...zJ'...l....3f
+000000d0: 921c f162 881b 92de 93d2 6d7b 9d58 ba93  ...b......m{.X..
+000000e0: 31fd 110d 6162 4287 8662 1a40 a29f e38e  1...abB..b.@....
+000000f0: e592 a6ac 3c2c 64c8 ed00 6493 caf1 e32c  ....<,d...d....,
+
+We can see that the derived secrets are identical.
+
