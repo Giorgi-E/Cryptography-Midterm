@@ -1,0 +1,25 @@
+
+Creating data.txt with "Never trust, always verify." text.
+Then hashing it using CLI:
+shasum -a 256 data.txt
+
+Then resulting has output is:
+50dddf8b540a8d16693d741462e1f0431fe43acd4f9c2d006edf7d2e828f7fa4 *data.txt
+
+For HMAC I have the python script attached.
+I run the python code and it outputs the HMAC:
+
+HMAC: 77ff6d313b1afbac12ceb402d89d5f5dac37faebe581527cff8dc04eb3193df2
+
+Then I modify 1 letter in the data.txt document:
+Never trust, always verify. -> changed to -> Never tryst, always verify.
+
+New HMAC is a completely different:
+
+HMAC: 1244bc84431a709bcab4227a7af957fb96ddaaf719ceabb1e6fa81fe431d080c
+
+
+HMAC is used to detect tampering. Even a single character change can lead to a completely different HMAC.
+HMAC is important for ensuring authenticity and data integrity.
+If HMAC is different from our exprected output we can say that the file has been tampered with.
+For secure message verification the HMACs have to match.  
