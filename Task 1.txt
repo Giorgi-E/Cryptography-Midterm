@@ -1,0 +1,13 @@
+
+secret.txt created with line "This file contains top secret information" using command:
+
+echo "This file contains top secret information." > secret.txt
+
+Use OpenSSL to encrypt with passphase - "codeone":
+openssl enc -aes-256-cbc -salt -in secret.txt -out secret.enc
+
+The encrypted file has now been created. We can decrypt it with:
+openssl enc -d -aes-256-cbc -in secret.enc -out decrypted.txt
+
+We then check the content of decrypted.txt and see that it contains the same text as secret.txt
+
